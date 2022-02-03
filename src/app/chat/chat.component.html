@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="area1 group-list">
+        <ul>
+            <li id="li_firstChild" (click)="switchActiveGroup(undefined)">Home</li>
+            <div *ngIf="groups?.length > 0">
+                <li *ngFor="let groups of groups" (click)="switchActiveGroup(groups.uid)">{{groups.abbr}}</li>
+            </div>
+            <li id="li_lastChild">+</li>
+        </ul>
+    </div>
+    <div class="area2 group-title">
+        <div *ngIf="groups?.length > 0 && index != undefined">{{groups[index].name}}</div>
+    </div>
+    <div class="area3 group-members">
+        
+    </div>
+    <div class="area4 username">
+        <div *ngIf="user != undefined">{{user.displayName}}</div>
+    </div>
+    <div class="area5 "></div>
+    <div class="area6 messages">
+        
+    </div>
+    <div class="area7 add-message"></div>
+    <div class="area8 "></div>
+    <div class="area9 "></div>
+    <div class="area10 "></div>
+</div>
