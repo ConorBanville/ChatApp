@@ -1,5 +1,4 @@
 import { Component, Output, Input, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-email-password-form',
@@ -8,7 +7,7 @@ import { Router } from '@angular/router';
 })
 export class EmailPasswordFormComponent{
 
-  constructor(private router: Router) {}
+  constructor() {}
 
   // Object to send data to parent
   @Output() formData: EventEmitter<any> = new EventEmitter();

@@ -18,6 +18,7 @@ import { LoginComponent } from './login/login.component';
 import { EmailPasswordFormComponent } from './email-password-form/email-password-form.component';
 import { CreateAccountComponent } from './create-account/create-account.component';
 import { ResetPasswordFormComponent } from './reset-password-form/reset-password-form.component';
+import { CreateGroupFormComponent } from './create-group-form/create-group-form.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ResetPasswordFormComponent } from './reset-password-form/reset-password
     ChatComponent,
     CreateAccountComponent,
     ResetPasswordFormComponent,
+    CreateGroupFormComponent,
   ],
   imports: [
     BrowserModule,

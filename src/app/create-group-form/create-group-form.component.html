@@ -1,0 +1,12 @@
+<div class="group-form">
+    <h2>Create a group</h2>
+    <p>Your groups are where you and your friends can hang out. Make yours and start chatting.</p>
+    <form #groupData="ngForm" autocomplete="off" (ngSubmit)="Submit(groupData)">
+        <div class="form-group">
+            <input #name="ngModel" autocomplete="off" required type="name" name="name" placeholder="name" class="form-control" ngModel/>
+            <label for="name">Give your group a name.</label>
+        </div>
+        <input type="submit" name="create-group" value="Create"/>
+        <input type="back" name="go-back" value="Close" (click)="GoBack()"/>
+    </form>
+</div>

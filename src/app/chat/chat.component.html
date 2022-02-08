@@ -5,24 +5,42 @@
             <div *ngIf="groups?.length > 0">
                 <li *ngFor="let groups of groups" (click)="switchActiveGroup(groups.uid)">{{groups.abbr}}</li>
             </div>
-            <li id="li_lastChild">+</li>
+            <li id="li_lastChild" (click)="switchActiveGroup('new group')">+</li>
         </ul>
     </div>
     <div class="area2 group-title">
         <div *ngIf="groups?.length > 0 && index != undefined">{{groups[index].name}}</div>
     </div>
     <div class="area3 group-members">
-        
+        <div *ngIf="index != undefined && groups[index] != undefined">
+            <li *ngFor="let member of groups[index].members">{{matchUidToDisplayName(member)}}</li>
+        </div>
     </div>
     <div class="area4 username">
         <div *ngIf="user != undefined">{{user.displayName}}</div>
     </div>
     <div class="area5 "></div>
     <div class="area6 messages">
-        
+        <div *ngIf="index != undefined && groups[index] != undefined">
+            <div class={{message.class}} *ngFor="let message of groups[index].messages">
+                {{message.content}}<br>
+                {{matchUidToDisplayName(message.senderUid)}}<br>
+                {{convertUnixTime(message.timestamp)}}<br><br>
+            </div>
+        </div>
     </div>
-    <div class="area7 add-message"></div>
+    <div class="area7 add-message">
+        <div *ngIf="index != undefined && groups[index] != undefined">
+            <form #newMessage="ngForm" (ngSubmit)="createNewMessage(newMessage)">
+                <input #messageContent="ngModel" autocomplete="off" class="" type="text" name="messageContent" placeholder="Message {{groups[index].name}}" required ngModel/>
+                <input type="submit" name="sendMessage" value="Send" />
+            </form>
+        </div>
+    </div>
     <div class="area8 "></div>
     <div class="area9 "></div>
     <div class="area10 "></div>
+    <div class="form-area" *ngIf="formActive">
+        <app-create-group-form (emitter)="createNewGroup($event)"></app-create-group-form>
+    </div>
 </div>

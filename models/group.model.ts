@@ -1,8 +1,7 @@
-import { GroupMember } from "./group.member.model";
 import { MessageModel } from "./message.model";
 
 export interface GroupModel {
-    members: Array<GroupMember>,
+    members: Array<string>,
     messages: Array<MessageModel>,
     abbr: any,
     name: any,

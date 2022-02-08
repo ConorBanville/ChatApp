@@ -4,10 +4,13 @@ import { UserModel } from 'models/user.model';
 import { GroupModel } from 'models/group.model';
 import { GroupMember } from "models/group.member.model";
 import { MessageModel } from "models/message.model";
+import { FirebaseGroupModel } from 'models/firebase.group.model';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';;
+import { Router } from '@angular/router';
+
+declare function require(name:string);
 
 
 @Component({
@@ -16,13 +19,12 @@ import { Router } from '@angular/router';;
   styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit {
-
   user: UserModel;
   groups: Array<GroupModel>;
   index: number;
+  formActive: boolean;
+  formData: any;
   private displayNameLookUpTable: Array<GroupMember>;
-
-  count: number;
 
   constructor( 
     private db: AngularFirestore, 
@@ -31,8 +33,8 @@ export class ChatComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
+    this.formActive = false;
     // If a user is logged in then retrieve their UserModel from the users collection
-    this.count = 0;
     if(this.authService.userLoggedIn()) {
       this.db.collection('users').doc(this.authService.getUid()).get().toPromise().then((doc)=>{
         this.user = {
@@ -60,7 +62,7 @@ export class ChatComponent implements OnInit {
                 name: obj.name,
                 ownerUid: obj.ownerUid,
                 uid: obj.uid,
-                members: this.mapMembers(obj.members),
+                members: obj.members,
                 messages: this.mapMessages(obj.messages)
             })
           })
@@ -69,42 +71,59 @@ export class ChatComponent implements OnInit {
   }
 
   private getDisplayNames() {
-      let mbrs = [];
-      this.displayNameLookUpTable = [];
+      let mbrs = []; // Store all the members uids
+      // Loop through each group
       for(let i=0; i<this.groups.length;i++) {
+          // Loop through the members of a group
           for(let j=0; j<this.groups[i].members.length; j++) {
-              if(!mbrs.includes(this.groups[i].members[j].uid)) {
-                  mbrs.push(this.groups[i].members[j].uid);
-                  this.db.collection('users').doc(this.groups[i].members[j].uid)
-                  .get().toPromise().then((doc => {
-                    let temp: GroupMember = {
-                        uid: this.groups[i].members[j].uid,
-                        name: doc.get('displayName')
-                    }
-                    if(!this.displayNameLookUpTable.includes(temp)) {
-                        this.displayNameLookUpTable.push(temp);  
-                    }
-                  }))
+              // If we find a new uid then add it to the list
+              if(!mbrs.includes(this.groups[i].members[j])) {
+                  mbrs.push(this.groups[i].members[j]);
               }
           }
       }
+      // Now that we have all the members, ask firestore for their display names
+      mbrs.forEach(uid => {
+          this.db.collection('users').doc(uid).get().toPromise().then(doc => {
+              this.addDisplayNameToLookUpTable(uid, doc.get('displayName'));
+          })
+      })
   }
 
-  private matchUidToDisplayName(lookupTable: Array<GroupMember>, uid: string) {
-      for(let i=0; i<lookupTable.length; i++) {
-          if(lookupTable[i].uid == uid) return lookupTable[i].name;
-      }
-  }
-
-  private mapMembers(obj): Array<GroupMember>{
-    let mbrs: Array<GroupMember> = [];
-    obj.forEach(element => {
-        mbrs.push({
-            uid: element,
-            name: ''
+  private addDisplayNameToLookUpTable(uid: string, name: string) {
+    // If the look up table is not initialized then initialize it
+    if(this.displayNameLookUpTable == undefined){this.displayNameLookUpTable = [];}
+    // If the uid is not in the look up table then add it 
+    if(!this.contains(uid)) {
+        this.displayNameLookUpTable.push({
+            uid: uid,
+            name: name
         })
-    });
-    return mbrs;
+    }
+    // Otherwise only edit the entry in the look up table if the has been a change to the name
+    else {
+        for(let i=0; i<this.displayNameLookUpTable.length; i++) {
+            if(this.displayNameLookUpTable[i].uid == uid && this.displayNameLookUpTable[i].name != name) {
+                this.displayNameLookUpTable[i].name = name;
+            }
+        }
+    }
+  }
+
+  // Check if a uid is contained in the look up table
+  private contains(uid: string ): boolean {
+      for(let i=0; i< this.displayNameLookUpTable.length; i++) {
+          if(this.displayNameLookUpTable[i].uid == uid) {
+              return true;
+          }
+      }
+      return false;
+  }
+
+  matchUidToDisplayName(uid: string){
+      for(let i=0; i<this.displayNameLookUpTable.length; i++) {
+          if(this.displayNameLookUpTable[i].uid == uid) return this.displayNameLookUpTable[i].name;
+      }
   }
 
   private mapMessages(obj): Array<MessageModel> {
@@ -112,12 +131,19 @@ export class ChatComponent implements OnInit {
       obj.forEach(element => {
           msgs.push({
               senderUid: element.sender,
-              senderName: '',
               timestamp: element.timestamp,
-              content: element.content
+              content: element.content,
+              class: ""
           })
       });
       return msgs;
+  }
+
+  // Format Unix timestamp the human readable
+  convertUnixTime(unix: string): string {
+      var date = new Date(parseInt(unix)).toLocaleDateString('en-UK');
+      var time = new Date(parseInt(unix)).toLocaleTimeString('en-UK');
+      return date + ', ' + time;
   }
 
   /*  Map the group name stored in a snapshot to an abbreviated version */
@@ -135,27 +161,64 @@ export class ChatComponent implements OnInit {
 
   /*  Switch the active group when icon is clicked */
   switchActiveGroup(uid: any) {
+    // If the home icon is clicked, set the index to undefined
     if(uid == undefined) {this.index = undefined; return;}
-    this.count ++;
+    // If the add icon is clicked, set index undefined and formActive true
+    if(uid == 'new group') {this.index = undefined; this.formActive = true; return;}
+    // Set the index to the clicked groups index
     for(let i=0; i<this.groups.length; i++) {
-        if(uid === this.groups[i].uid) {
+        if(this.groups[i].uid == uid) {
             this.index = i;
-            for(let j=0; j<this.groups[i].members.length; j++) {
-                this.groups[i].members[j] = {
-                    uid : this.groups[i].members[j].uid,
-                    name: this.matchUidToDisplayName( this.displayNameLookUpTable, this.groups[i].members[j].uid)
-                }
-            }
-            for(let j=0; j<this.groups[i].messages.length; j++) {
-                this.groups[i].messages[j] = {
-                    senderUid: this.groups[i].messages[j].senderUid,
-                    senderName: this.matchUidToDisplayName( this.displayNameLookUpTable, this.groups[i].messages[j].senderUid),
-                    timestamp: this.groups[i].messages[j].timestamp,
-                    content: this.groups[i].messages[j].content
-                }
-            }
+            // Sort the messages based on timestamp
+            this.groups[i].messages.sort(function(x,y){
+                return parseInt(x.timestamp) - parseInt(y.timestamp);
+            })
         }
     }
-    if(this.count >= this.groups.length) console.log(this.groups);
+  }
+
+  createNewMessage(formData: any) {
+    const firebase = require('firebase/app');
+    let message: any = {
+        sender: this.user.uid,
+        timestamp: Date.now()+"",
+        content: formData.value.messageContent,
+    }
+    this.db.collection('groups').doc(this.groups[this.index].uid).set({
+        "messages": firebase.firestore.FieldValue.arrayUnion(message)
+    }, 
+    {merge: true})
+  }
+
+  // Create a new group from the create-group-form data
+  createNewGroup(formData: any) {
+    // Special case 'Close' will be returned, indicating to close the form
+    if(formData == 'Close') {
+      this.formActive = false;
+      return;
+    }
+    // Make sure we have a valid form
+    else if(formData.form.status == 'INVALID') return;
+    // Create a new group document
+    else {
+      let doc:FirebaseGroupModel = {
+        members: [this.user.uid],
+        messages: [],
+        name: formData.form.value.name,
+        ownerUid: this.user.uid,
+        uid: ''
+      }
+      // Add the new document to the firestore
+      this.db.collection('groups').add(doc).then(res => {
+        this.formActive = false; // Close the form
+        // Update the new document in the firestore with its own id
+        this.db.collection('groups').doc(res.id).update({
+          uid: res.id
+        }).then(() => {
+          // Switch to the new group
+          this.switchActiveGroup(res.id);
+        })
+      })
+    }
   }
 }
