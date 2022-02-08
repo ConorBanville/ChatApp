@@ -14,65 +14,67 @@ body {
     right: 0;
     width: 100%;
     height: 100%;
-    grid-template-columns: 80px 240px 2fr 1fr;
+    grid-template-columns: 80px 240px 1fr 220px;
     grid-template-rows: 50px 1fr 70px;
+    background-color: var(--shade-2);
 }
 
 .area1 {
-    border: 1px solid black;
     grid-row: 1 / span 3;
+    background-color: var(--shade-2);
 }
 
 .area2 {
-    border: 1px solid black;
     grid-column: 2;
     grid-row: 1;
+    background-color: var(--shade-2);
 }
 
 .area3 {
-    border: 1px solid black;
     grid-column: 2;
     grid-row: 2;
+    background-color: var(--shade-4);
+    border-top-left-radius: 10px;
 }
 
 .area4 {
-    border: 1px solid black;
+    background-color: var(--shade-3);
     grid-column: 2;
     grid-row: 3;
 }
 
 .area5 {
-    border: 1px solid black;
+    background-color: var(--shade-2);
     grid-column: 3;
     grid-row: 1;
 }
 
 .area6 {
-    border: 1px solid black;
+    background-color: var(--shade-5);
     grid-column: 3;
     grid-row: 2;
 }
 
 .area7 {
-    border: 1px solid black;
+    background-color: var(--shade-3);
     grid-column: 3;
     grid-row: 3;
 }
 
 .area8 {
-    border: 1px solid black;
+    background-color: var(--shade-2);
     grid-column: 4;
     grid-row: 1;
 }
 
 .area9 {
-    border: 1px solid black;
+    background-color: var(--shade-4);
     grid-column: 4;
     grid-row: 2;
 }
 
 .area10 {
-    border: 1px solid black;
+    background-color: var(--shade-3);
     grid-column: 4;
     grid-row: 3;
 }
@@ -93,8 +95,12 @@ body {
 }
 
 #li_lastChild {
-    border: 2px solid blue;
     font-size: 2rem;
+    color: var(--shade-7);
+}
+
+#li_lastChild:hover {
+    border: 2px solid var(--shade-7);
 }
 
 .group-list ul li{
@@ -102,10 +108,16 @@ body {
     margin: 10px 0;
     height: 50px;
     width: 50px;
-    border: solid black 1px;
-    border-radius: 15px;
+    background-color: var(--shade-5);
+    color: var(--shade-6);
+    border-radius: 50%;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+}
+
+.group-list ul li:hover{
+    border-radius: 40%;
 }
 
 .form-area {
@@ -115,4 +127,51 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
+}
+
+.username {
+    display: grid;
+    grid-template-columns: 55px 1fr 30px;
+    grid-template-rows: 1fr;
+    align-items: center;
+}
+
+.username .name {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: center;
+    cursor: default;
+    color: var(--shade-6);
+}
+
+.username .profile {
+    display: inline-block;
+    margin: auto;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 140%;
+    cursor: pointer;
+}
+
+.username .profile:hover {
+    background-color: var(--shade-6);
+    border-radius: 40%;
+    border: 1px solid var(--shade-6);
+}
+
+.username img {
+    grid-column: 3;
+    width: 20px;
+    height: 20px;
+    grid-row: 1;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.username img:hover {
+    background-color: var(--shade-6);
 }

@@ -20,6 +20,9 @@ import { CreateAccountComponent } from './create-account/create-account.componen
 import { ResetPasswordFormComponent } from './reset-password-form/reset-password-form.component';
 import { CreateGroupFormComponent } from './create-group-form/create-group-form.component';
 
+import * as firebase from 'firebase';
+firebase.initializeApp(environment.firebase);
+
 @NgModule({
   declarations: [
     AppComponent,

@@ -11,7 +11,7 @@ import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 
 declare function require(name:string);
-
+import * as firebase from 'firebase/app';
 
 @Component({
   selector: 'app-chat',
@@ -20,6 +20,7 @@ declare function require(name:string);
 })
 export class ChatComponent implements OnInit {
   user: UserModel;
+  profilePictureURL: string;
   groups: Array<GroupModel>;
   index: number;
   formActive: boolean;
@@ -47,6 +48,14 @@ export class ChatComponent implements OnInit {
         }
       })
       .then(() => {
+        // Get the profile picture for this user
+        if(this.user.photoURL == '') {
+          this.profilePictureURL = '../assets/images/profile.svg';
+        } else {
+          firebase.storage().ref().child(this.user.photoURL).getDownloadURL().then(res => {
+            this.profilePictureURL = res;
+          });
+        }
         this.getGroups(); // Fill the `usersGroups` array with data from the firestore
       })
     } else {this.router.navigate(['']);} // If no user is currently logged in then navigate to login component

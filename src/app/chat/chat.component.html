@@ -8,18 +8,25 @@
             <li id="li_lastChild" (click)="switchActiveGroup('new group')">+</li>
         </ul>
     </div>
+
     <div class="area2 group-title">
         <div *ngIf="groups?.length > 0 && index != undefined">{{groups[index].name}}</div>
     </div>
+
     <div class="area3 group-members">
         <div *ngIf="index != undefined && groups[index] != undefined">
-            <li *ngFor="let member of groups[index].members">{{matchUidToDisplayName(member)}}</li>
+            <li *ngFor="let member of groups[index].members">{{matchUidToDisplayName(member).replace('@','')}}</li>
         </div>
     </div>
+
     <div class="area4 username">
-        <div *ngIf="user != undefined">{{user.displayName}}</div>
+        <div class="name" *ngIf="user != undefined">{{user.displayName}}</div>
+        <div class="profile" *ngIf="profilePictureURL != undefined" style='background-image: url({{profilePictureURL}});'></div>
+        <img src="../assets/images/icon-settings.svg"/>
     </div>
+
     <div class="area5 "></div>
+
     <div class="area6 messages">
         <div *ngIf="index != undefined && groups[index] != undefined">
             <div class={{message.class}} *ngFor="let message of groups[index].messages">
@@ -29,6 +36,7 @@
             </div>
         </div>
     </div>
+
     <div class="area7 add-message">
         <div *ngIf="index != undefined && groups[index] != undefined">
             <form #newMessage="ngForm" (ngSubmit)="createNewMessage(newMessage)">
@@ -37,9 +45,13 @@
             </form>
         </div>
     </div>
+
     <div class="area8 "></div>
+
     <div class="area9 "></div>
+
     <div class="area10 "></div>
+
     <div class="form-area" *ngIf="formActive">
         <app-create-group-form (emitter)="createNewGroup($event)"></app-create-group-form>
     </div>

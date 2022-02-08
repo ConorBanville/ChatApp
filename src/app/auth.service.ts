@@ -3,6 +3,8 @@ import { LoginData } from 'models/login-data.interface';
 import { UserModel } from 'models/user.model';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
+import * as firebase from 'firebase';
+
 
 @Injectable({
   providedIn: 'root'
@@ -79,7 +81,7 @@ export class AuthService {
       email: fbUser.email,
       emailVerified: fbUser.emailVerified,
       displayName: '@'+fbUser.email.substring(0,fbUser.email.indexOf('@')),
-      photoURL: fbUser.photoURL,
+      photoURL: '',
       friends: []
     }
     return user;
